@@ -81,7 +81,10 @@ class TaskManagerKiller:
 
             sleep(ITER_WAIT)
 
+            # Keep looking for the task manager process and kill it.
+
             for process in psutil.process_iter(['name']):
+                
                 if process.info['name'] and process.info['name'].lower() == "taskmgr.exe":
                     process.kill()
                     logging.info("Task Manager killed.")
@@ -105,25 +108,26 @@ class InputHandler:
         if self.devicesEnabled:
             return
 
+        # Find out the string name of the key pressed
         key_name = ""
         if hasattr(event, "char") and event.char:
             key_name = event.char.lower()
         elif hasattr(event, "_name_") and event._name_:
             key_name = event._name_.lower()
 
+        # If there's too many characters in memory (more than the unlock combination), remove oldest one
         if len(CHARACTER_MEMORY) >= len(UNLOCK_COMBINATION):
             CHARACTER_MEMORY.pop(0)
 
+        # Add key to memory
         CHARACTER_MEMORY.append(key_name)
         logging.debug(f"Character Memory: {CHARACTER_MEMORY}")
 
-        if len(CHARACTER_MEMORY) < len(UNLOCK_COMBINATION):
-            return
+        # If everything the user has typed so far is not the unlock combo, exit
+        if len(CHARACTER_MEMORY) < len(UNLOCK_COMBINATION): return
+        if UNLOCK_COMBINATION != CHARACTER_MEMORY[-len(UNLOCK_COMBINATION):]: return
 
-        if UNLOCK_COMBINATION != CHARACTER_MEMORY[-len(UNLOCK_COMBINATION):]:
-            return
-
-        # Correct combination entered
+        # Correct combination entered if not returned by now.
 
         logging.info("Correct combination entered. Unlocking computer.")
 
@@ -201,8 +205,12 @@ class LockMessage:
 
             root.wm_attributes("-topmost", True)
             root.wm_attributes("-disabled", True)
+            
+            # Basically makes a greenscreen. Not very effective but I don't mind.
+            # Colour everything you want transparent green.
             root.wm_attributes("-transparentcolor", "green")
 
+            # Find a random spot on the screen. I don't know what I did here, but it works.
             random_x = screenWidth // 2 - (screenWidth // randint(2,10)) // 2
             random_y = screenHeight // 2 - (screenWidth // randint(2,10)) // 2
 
@@ -218,31 +226,46 @@ class LockMessage:
             elapsed_time_label.place(x=random_x + screenHeight // 16, y=random_y + screenWidth // 5)
 
             start_time = time()
-
+            
+            # Update the time every second
             def update_elapsed_time():
+
                 elapsed_time = time() - start_time
+
                 minutes, seconds = divmod(int(elapsed_time), 60)
                 hours, minutes = divmod(minutes, 60)
+
                 time_string = f"{hours:02}:{minutes:02}:{seconds:02}"
+
                 elapsed_time_label.config(text=time_string)
+
                 root.after(1000, update_elapsed_time)
 
             update_elapsed_time()
+
             root.mainloop()
+
         except Exception as e:
+
             logging.error(f"Error in LockMessage.drawMessage: {e}")
 
     def start(self):
+
         self.stop()
+
         p = Process(target=self.drawMessage)
         p.start()
         self.process = p
+        
         logging.debug("LockMessage process started.")
 
     def stop(self):
+
         if self.process:
+
             self.process.terminate()
             self.process = None
+
             logging.debug("LockMessage process terminated.")
 
 class InactivityMonitor(threading.Thread):
@@ -352,17 +375,31 @@ class TrayIcon:
             monitor.stop()
             icon.stop()
 
-        # Load an icon image for the tray
+        # Load icon image
         try:
-            icon_image = Image.open("./assets/icon.png")  # Replace with your icon path
+            icon_image = Image.open("./assets/icon.png")
         except Exception as e:
             logging.error(f"Failed to load tray icon image: {e}")
             # Fallback icon, red square
             icon_image = Image.new('RGB', (64, 64), color = 'red')
 
+        # Create menu
         menu = pystray.Menu(
-            pystray.MenuItem('Enable Monitor', on_enable, checked=lambda item: monitor.enabled.is_set()),
-            pystray.MenuItem('Disable Monitor', on_disable, checked=lambda item: not monitor.enabled.is_set()),
+
+            # Enable the monitor
+            pystray.MenuItem(
+                'Enable Monitor', 
+                on_enable,
+                checked = lambda item: monitor.enabled.is_set()),
+
+            # Disable the monitor
+            pystray.MenuItem(
+                'Disable Monitor',
+                on_disable, 
+                checked = lambda item: not monitor.enabled.is_set()
+            ),
+
+            # Exit the monitor (kill this process)
             pystray.MenuItem('Exit', on_exit)
         )
 
@@ -370,6 +407,7 @@ class TrayIcon:
         logging.debug("System tray icon created.")
 
     def start(self):
+
         logging.info("System tray icon running.")
         self.icon.run()
     
@@ -386,8 +424,12 @@ if __name__ == "__main__":
 
     # Create and run the system tray icon
     try:
+
         logging.debug("Starting tray icon..")
         TrayIcon(monitor).start()
+
     except Exception as e:
+
         logging.error(f"Error running tray icon: {e}")
         monitor.stop()
+        exit(1)
