@@ -12,6 +12,7 @@ from PIL import Image, ImageTk
 import math
 import psutil
 import pystray
+import pywintypes
 
 # --------------------- Logging Configuration ---------------------
 
@@ -121,7 +122,7 @@ class InputHandler:
 
         # Add key to memory
         CHARACTER_MEMORY.append(key_name)
-        logging.debug(f"Character Memory: {CHARACTER_MEMORY}")
+        logging.debug(f"Character Memory: [{", ".join(CHARACTER_MEMORY)}]")
 
         # If everything the user has typed so far is not the unlock combo, exit
         if len(CHARACTER_MEMORY) < len(UNLOCK_COMBINATION): return
@@ -292,7 +293,11 @@ class InactivityMonitor(threading.Thread):
         logging.info("InactivityMonitor initialized with timeout %s seconds", self.timeout)
 
     def isDesktopActive(self):
-        windowClassName = win32gui.GetClassName(win32gui.GetForegroundWindow())
+        try:
+            windowClassName = win32gui.GetClassName(win32gui.GetForegroundWindow())
+        except pywintypes.error:
+            # In case of invalid (non-existent) window handle
+            return False
         return windowClassName == "WorkerW"
 
     def run(self):
