@@ -30,7 +30,7 @@ logging.basicConfig(
 # Keep this low, because it affects how long it takes to close the app
 ITER_WAIT = 1
 # How many seconds to wait before locking 
-IDLE_LIMIT = 3
+IDLE_LIMIT = 300
 
 # Internal counter for idle time      
 CURRENT_IDLE = 0

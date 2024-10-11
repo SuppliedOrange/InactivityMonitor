@@ -41,6 +41,8 @@ UNLOCK_COMBINATION = ["o", "p", "p", "o"]
 NON_LETHAL = False # Nothing gets locked with this mode on, but the rest of the app will work.
 ```
 
+#### **NOTE**: The password by default is "oppo", you will have to type that into your keyboard to unlock your device unless you change it.
+
 ## Credits
 
 + The `character.png` comes from [dinopixel.com](https://dinopixel.com/guess-the-character-from-just-black-and-white-color-pixel-art-10625) and the author is [Squidgril202](https://dinopixel.com/user/squidgril202). You may not use this character anywhere without explicit permission from the owner, and the license of this repo does not cover it.
