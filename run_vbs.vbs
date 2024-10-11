@@ -1,0 +1,1 @@
+CreateObject("Wscript.Shell").Run "run_python.bat",0,True
