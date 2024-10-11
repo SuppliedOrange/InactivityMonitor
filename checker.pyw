@@ -323,9 +323,6 @@ class InactivityMonitor(threading.Thread):
                 else:
                     CURRENT_IDLE = 0
 
-            else:
-                logging.debug("InactivityMonitor is disabled.")
-
         logging.info("InactivityMonitor stopped.")
 
     def lock(self):
