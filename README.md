@@ -11,9 +11,9 @@ Note that this was built for a *Windows* machine, you cannot run this on a linux
 + Install python from [Microsoft Store](https://apps.microsoft.com/detail/9ncvdn91xzqp) or the [Official Python Website](https://www.python.org/downloads/release/python-3126/). Any version above 3.10 should work, but I used 3.12.
 
 + Run `run_install.bat` to install all required dependencies
-+ Run `run_python.bat` (with console) or `run_vbs.bat` (without console) to start the app!
++ Run `run_python.bat` (with console) or `run_vbs.vbs` (without console) to start the app!
 + You may then control the app through the tray icon.
-+ Optionally, you may add the `run_vbs.bat` file to your task scheduler to run on boot!
++ Optionally, you may add the `run_vbs.vbs` file to your task scheduler to run on boot!
 
 ## Options
 
