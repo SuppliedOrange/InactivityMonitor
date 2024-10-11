@@ -313,7 +313,7 @@ class InactivityMonitor(threading.Thread):
 
                 if self.isDesktopActive():
                     CURRENT_IDLE += ITER_WAIT
-                    logging.info(f"Desktop active for {CURRENT_IDLE} seconds.")
+                    logging.debug(f"Desktop active for {CURRENT_IDLE} seconds.")
 
                     if CURRENT_IDLE > IDLE_LIMIT:
                         CURRENT_IDLE = 0
