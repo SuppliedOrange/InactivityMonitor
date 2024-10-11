@@ -41,7 +41,34 @@ UNLOCK_COMBINATION = ["o", "p", "p", "o"]
 NON_LETHAL = False # Nothing gets locked with this mode on, but the rest of the app will work.
 ```
 
-#### **NOTE**: The password by default is "oppo", you will have to type that into your keyboard to unlock your device unless you change it.
+### NOTE
+
+The password by default is **"oppo"**, you will have to type that into your keyboard to unlock your device unless you change it
+
+## Adding to task scheduler
+
++ Open up Task Scheduler on your system
+
++ Right click anywhere in the task list and select "Create Basic Task"
+![alt text](./assets/readme_task_guide_1.png)
+
++ Enter any name for the task
+
++ Trigger when the computer starts
+![alt text](./assets/readme_task_guide_2.png)
+
++ Start a Program
+
++ Click on "Browse" and look for the `run_vbs.vbs` file
+![alt text](./assets/readme_task_guide_3.png)
+
++ Put the file path in the "Start in" option
+![alt text](./assets//readme_task_guide_4.png)
+
++ If you are on a laptop, might help to disable this
+![alt text](./assets/readme_task_guide_5.png)
+
++ Done! Every time you start your computer, the inactivity monitor will run
 
 ## Credits
 
