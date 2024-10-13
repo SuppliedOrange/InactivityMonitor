@@ -122,7 +122,7 @@ class InputHandler:
 
         # Add key to memory
         CHARACTER_MEMORY.append(key_name)
-        logging.debug(f"Character Memory: [{", ".join(CHARACTER_MEMORY)}]")
+        logging.debug(f"Character Memory: [{', '.join(CHARACTER_MEMORY)}]")
 
         # If everything the user has typed so far is not the unlock combo, exit
         if len(CHARACTER_MEMORY) < len(UNLOCK_COMBINATION): return
