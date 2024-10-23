@@ -29,9 +29,9 @@ logging.basicConfig(
 # --------------------- Configuration Constants ---------------------
 # How long to wait between each iteration (in seconds)
 # Keep this low, because it affects how long it takes to close the app
-ITER_WAIT = 1
+ITERATION_DELAY = 1
 # How many seconds to wait before locking 
-IDLE_LIMIT = 300
+IDLE_LIMIT = 120
 
 # Internal counter for idle time      
 CURRENT_IDLE = 0
@@ -80,7 +80,7 @@ class TaskManagerKiller:
 
         while True:
 
-            sleep(ITER_WAIT)
+            sleep(ITERATION_DELAY)
 
             # Keep looking for the task manager process and kill it.
 
@@ -307,12 +307,12 @@ class InactivityMonitor(threading.Thread):
 
         while self.running.is_set():
 
-            sleep(ITER_WAIT)
+            sleep(ITERATION_DELAY)
 
             if self.enabled.is_set() and not self.isCurrentlyLocked:
 
                 if self.isDesktopActive():
-                    CURRENT_IDLE += ITER_WAIT
+                    CURRENT_IDLE += ITERATION_DELAY
                     logging.debug(f"Desktop active for {CURRENT_IDLE} seconds.")
 
                     if CURRENT_IDLE > IDLE_LIMIT:
@@ -376,6 +376,10 @@ class TrayIcon:
             logging.info("Tray Menu: Exiting application.")
             monitor.stop()
             icon.stop()
+        
+        def on_lock(icon, item):
+            monitor.lock()
+            logging.info("Tray Menu: Locked Manually.")
 
         # Load icon image
         try:
@@ -387,6 +391,9 @@ class TrayIcon:
 
         # Create menu
         menu = pystray.Menu(
+
+            # Lock manually
+            pystray.MenuItem('Lock', on_lock),
 
             # Enable the monitor
             pystray.MenuItem(
