@@ -38,7 +38,10 @@ Use NON_LETHAL mode to test that your unlock combination actually works before d
 """
 # Unlock combination and mode
 UNLOCK_COMBINATION = ["o", "p", "p", "o"]
-NON_LETHAL = False # Nothing gets locked with this mode on, but the rest of the app will work.
+# Nothing gets locked with this mode on, but the rest of the app will work.
+NON_LETHAL = False
+# Adds a Komorebi-specific feature where staying on blank workspaces are treated as idling.
+KOMOREBI_INTEGRATION_ENABLED = True
 ```
 
 ### NOTE
@@ -77,7 +80,7 @@ The password by default is **"oppo"**, you will have to type that into your keyb
 
 ## Komorebi Integration
 
-If you use [Komorebi](https://github.com/LGUG2Z/komorebi) on your system, you can turn `KOMOREBI_INTEGRATION_ENABLED` to `True`. This adds an additional criteria where if you switch to a blank workspace and stay there for too long, it assumes inactivity.
+If you use [Komorebi](https://github.com/LGUG2Z/komorebi) on your system, you can turn `KOMOREBI_INTEGRATION_ENABLED` to `True`. This adds an additional feature where if you switch to a blank workspace and stay there for too long, it assumes inactivity.
 
 ## Credits
 
