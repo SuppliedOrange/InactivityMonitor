@@ -81,6 +81,6 @@ If you use [Komorebi](https://github.com/LGUG2Z/komorebi) on your system, you ca
 
 ## Credits
 
-+ The `character.png` comes from [dinopixel.com](https://dinopixel.com/guess-the-character-from-just-black-and-white-color-pixel-art-10625) and the author is [Squidgril202](https://dinopixel.com/user/squidgril202). You may not use this character anywhere without explicit permission from the owner, and the license of this repo does not cover it.
++ The `character.png` comes from [dinopixel.com](https://dinopixel.com/guess-the-character-from-just-black-and-white-color-pixel-art-10625) and the author is [Squidgril202](https://dinopixel.com/user/squidgril202). The license of this repo does not cover it.
 
 + The font included in the repository is [VCR OSD Mono](https://www.dafont.com/vcr-osd-mono.font) and the author is [Riciery Santos Leal](https://www.dafont.com/mrmanet.d5509). You may not use this font for commercial purposes.
