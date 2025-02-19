@@ -75,6 +75,10 @@ The password by default is **"oppo"**, you will have to type that into your keyb
 
 + Done! Every time you start your computer, the inactivity monitor will run
 
+## Komorebi Integration
+
+If you use [Komorebi](https://github.com/LGUG2Z/komorebi) on your system, you can turn `KOMOREBI_INTEGRATION_ENABLED` to `True`. This adds an additional criteria where if you switch to a blank workspace and stay there for too long, it assumes inactivity.
+
 ## Credits
 
 + The `character.png` comes from [dinopixel.com](https://dinopixel.com/guess-the-character-from-just-black-and-white-color-pixel-art-10625) and the author is [Squidgril202](https://dinopixel.com/user/squidgril202). You may not use this character anywhere without explicit permission from the owner, and the license of this repo does not cover it.

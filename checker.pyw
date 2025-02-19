@@ -13,6 +13,9 @@ import math
 import psutil
 import pystray
 import pywintypes
+import os
+import subprocess
+import json
 
 # --------------------- Logging Configuration ---------------------
 
@@ -42,6 +45,7 @@ CHARACTER_MEMORY = []
 KEYBOARD_BLOCK = True
 MOUSE_BLOCK = True
 TASK_MANAGER_KILLER = True
+KOMOREBI_INTEGRATION_ENABLED = True
 
 """
 Make sure your unlock combination works! See the pynput.Key objects for special keys.
@@ -51,6 +55,61 @@ Use NON_LETHAL mode to test that your unlock combination actually works before d
 UNLOCK_COMBINATION = ["o", "p", "p", "o"]
 NON_LETHAL = False
 # -----------------------------------------------------------------
+
+def is_komorebi_running():
+    """Check if komorebi.exe is running."""
+    for process in psutil.process_iter(['name']):
+        if process.info['name'] == 'komorebi.exe':
+            return True
+    return False
+
+def is_komorebic_in_path():
+    """Checks if 'komorebic' is in the system's PATH."""
+    return any(os.path.exists(os.path.join(path, 'komorebic.exe')) for path in os.environ["PATH"].split(os.pathsep))
+
+def is_komorebi_workspace_idle():
+    """
+    Checks if the current komorebi workspace is idle (no windows).
+    Returns:
+        True if the workspace is idle, False otherwise.
+    """
+    
+    if not is_komorebi_running() or not is_komorebic_in_path():
+        return False  # komorebi not running, thus not idle
+
+    try:
+
+        result = subprocess.run(['komorebic', 'state'], capture_output=True, text=True, check=True)
+        state = json.loads(result.stdout)
+
+        monitors = state.get("monitors", {}).get("elements", [])
+
+        if monitors:
+
+            focused_monitor_index = state.get("monitors", {}).get("focused")
+            focused_monitor = monitors[focused_monitor_index]
+            workspaces = focused_monitor.get("workspaces", {}).get("elements", [])
+
+            if workspaces:
+
+                focused_workspace_index = focused_monitor.get("workspaces", {}).get("focused")
+                focused_workspace = workspaces[focused_workspace_index]
+                window_count = len(focused_workspace.get("containers", {}).get("elements", []))
+                return window_count == 0
+
+        return False  # Handle cases where the JSON structure is unexpected
+
+    except FileNotFoundError:
+        logging.error("Error: komorebic not found. Is it in your PATH?")
+        return False
+
+    except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+        logging.error(f"Error getting komorebi state: {e}")
+        return False
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {e}")
+        return False
 
 class TaskManagerKiller:
 
@@ -311,7 +370,10 @@ class InactivityMonitor(threading.Thread):
 
             if self.enabled.is_set() and not self.isCurrentlyLocked:
 
-                if self.isDesktopActive():
+                if self.isDesktopActive() or (
+                    KOMOREBI_INTEGRATION_ENABLED and is_komorebi_workspace_idle()
+                ):
+
                     CURRENT_IDLE += ITERATION_DELAY
                     logging.debug(f"Desktop active for {CURRENT_IDLE} seconds.")
 
