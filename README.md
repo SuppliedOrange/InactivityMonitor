@@ -26,22 +26,42 @@ Note that this was built for a *Windows* machine, you cannot run this on a linux
 ```py
 # How many seconds to wait before locking 
 IDLE_LIMIT = 3
+
 # Modules to enable/disable
 KEYBOARD_BLOCK = True
 MOUSE_BLOCK = True
+
+# Adds a Komorebi-specific feature where staying on blank workspaces are treated as idling.
+KOMOREBI_INTEGRATION_ENABLED = True
+
 # To avoid the ctrl+alt+delete bypass.
 # Only works when computer on lockdown, don't worry!
 TASK_MANAGER_KILLER = True
+
 """
 Make sure your unlock combination works! See the pynput.Key objects for special keys.
 Use NON_LETHAL mode to test that your unlock combination actually works before deploying
 """
 # Unlock combination and mode
 UNLOCK_COMBINATION = ["o", "p", "p", "o"]
+
 # Nothing gets locked with this mode on, but the rest of the app will work.
 NON_LETHAL = False
-# Adds a Komorebi-specific feature where staying on blank workspaces are treated as idling.
-KOMOREBI_INTEGRATION_ENABLED = True
+
+""" Komorebi specific options """
+
+# When there are full-screen applications, do not assume komorebi idling
+IGNORE_FULLSCREEN_APPLICATIONS = True 
+
+# For the above parameter, this also requires it to be focused
+ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS = True 
+
+# Applications that aren't considered full-screen even if they are
+IGNORED_FULLSCREEN_TITLES = [
+    "Task Switching",
+    # ...
+] # You can determine which ones to ignore by running `fullscreen_apps.py`
+
 ```
 
 ### NOTE
