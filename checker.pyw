@@ -3,6 +3,8 @@ import logging
 import sys
 from time import sleep, time
 import win32gui
+import win32api
+import pygetwindow as gw
 from multiprocessing import Process
 import pynput
 import tkinter as tk
@@ -47,6 +49,19 @@ MOUSE_BLOCK = True
 TASK_MANAGER_KILLER = True
 KOMOREBI_INTEGRATION_ENABLED = True
 
+""" Komorebi specific options """
+
+# When there are full-screen applications, do not assume komorebi idling
+IGNORE_FULLSCREEN_APPLICATIONS = True 
+# For the above parameter, this also requires it to be focused
+ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS = True 
+
+# Applications that aren't considered full-screen even if they are
+IGNORED_FULLSCREEN_TITLES = [
+    "NVIDIA GeForce Overlay DT",
+    "Task Switching",
+] # You can determine which ones to ignore by running `fullscreen_apps.py`
+
 """
 Make sure your unlock combination works! See the pynput.Key objects for special keys.
 Use NON_LETHAL mode to test that your unlock combination actually works before deploying
@@ -65,7 +80,46 @@ def is_komorebi_running():
 
 def is_komorebic_in_path():
     """Checks if 'komorebic' is in the system's PATH."""
-    return any(os.path.exists(os.path.join(path, 'komorebic.exe')) for path in os.environ["PATH"].split(os.pathsep))
+    return any(
+        os.path.exists(os.path.join(path, 'komorebic.exe')) for path in os.environ["PATH"].split(os.pathsep)
+    )
+
+def has_fullscreen_applications_running(ensure_focused:bool = ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS):
+    """
+    Returns a list of fullscreen applications that are optionally in focus.
+    """
+
+    if not IGNORE_FULLSCREEN_APPLICATIONS: return []
+
+    screen_width = win32api.GetSystemMetrics(0)  # Screen width
+    screen_height = win32api.GetSystemMetrics(1)  # Screen height
+
+    fullscreen_applications = []
+
+    # Get the handle of the currently focused window
+    focused_window = win32gui.GetForegroundWindow()
+
+    for window in gw.getAllWindows():
+
+        # Check if the window matches the screen size
+        if window.isMaximized or (window.width == screen_width and window.height == screen_height):
+
+            if (
+                    # Window is in focus?
+                    ensure_focused and
+                    window._hWnd == focused_window
+                ) and (
+                    # Window title is not empty?
+                    window.title
+                ) and (
+                    # Window title is not in the ignored list?
+                    all(ignored not in window.title for ignored in IGNORED_FULLSCREEN_TITLES)
+                ):
+                
+                # Valid fullscreen application
+                fullscreen_applications.append(window.title)
+
+    return fullscreen_applications
 
 def is_komorebi_workspace_idle():
     """
@@ -73,8 +127,18 @@ def is_komorebi_workspace_idle():
     Returns:
         True if the workspace is idle, False otherwise.
     """
+
+    komorebi_status = is_komorebi_running()
+    komorebic_status = is_komorebic_in_path()
     
-    if not is_komorebi_running() or not is_komorebic_in_path():
+    if not komorebi_status or not komorebic_status:
+
+        komorebi_message = f"komorebi is { 'running' if komorebi_status else 'not running' }"
+        komorebic_message = f"komorebic is { 'in' if komorebic_status else 'not in' } PATH"
+        
+        error_message = f"{komorebi_message} and {komorebic_message}. Idle state cannot be determined."
+                
+        logging.error(error_message)
         return False  # komorebi not running, thus not idle
 
     try:
@@ -99,8 +163,8 @@ def is_komorebi_workspace_idle():
 
         return False  # Handle cases where the JSON structure is unexpected
 
-    except FileNotFoundError:
-        logging.error("Error: komorebic not found. Is it in your PATH?")
+    except FileNotFoundError as e:
+        logging.error(f"Error: komorebic not found. Full Error:\n{e}")
         return False
 
     except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
@@ -372,6 +436,7 @@ class InactivityMonitor(threading.Thread):
 
                 if self.isDesktopActive() or (
                     KOMOREBI_INTEGRATION_ENABLED and is_komorebi_workspace_idle()
+                    and not has_fullscreen_applications_running()
                 ):
 
                     CURRENT_IDLE += ITERATION_DELAY
