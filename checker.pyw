@@ -80,12 +80,19 @@ NON_LETHAL = False
 def is_windows_locked():
     """Detect whether Windows is locked using a desktop switching check."""
 
-    user32 = ctypes.windll.User32
-    desktop = user32.OpenDesktopA(b"default", 0, False, 0x0100)
-    
-    # If switching the desktop fails, it's likely that the system is locked
-    return not user32.SwitchDesktop(desktop)
+    try:
 
+        user32 = ctypes.windll.User32
+        desktop = user32.OpenDesktopA(b"default", 0, False, 0x0100)
+        
+        # If switching the desktop fails, it's likely that the system is locked
+        return not user32.SwitchDesktop(desktop)
+    
+    except Exception as e:
+        
+        logging.error(f"Error checking Windows lock state: {e}")
+        return False
+    
 def is_komorebi_running():
     """Check if komorebi.exe is running."""
     for process in psutil.process_iter(['name']):
