@@ -18,6 +18,7 @@ import pywintypes
 import os
 import subprocess
 import json
+import ctypes
 
 # --------------------- Logging Configuration ---------------------
 
@@ -49,12 +50,17 @@ MOUSE_BLOCK = True
 TASK_MANAGER_KILLER = True
 KOMOREBI_INTEGRATION_ENABLED = True
 
+# Options
+
+# If True, the program will not lock the computer if the windows OS is locked
+IGNORE_WHEN_WINDOWS_LOCKED = True
+
 """ Komorebi specific options """
 
 # When there are full-screen applications, do not assume komorebi idling
 IGNORE_FULLSCREEN_APPLICATIONS = True 
 # For the above parameter, this also requires it to be focused
-ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS = True 
+ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS = True
 
 # Applications that aren't considered full-screen even if they are
 IGNORED_FULLSCREEN_TITLES = [
@@ -70,6 +76,15 @@ Use NON_LETHAL mode to test that your unlock combination actually works before d
 UNLOCK_COMBINATION = ["o", "p", "p", "o"]
 NON_LETHAL = False
 # -----------------------------------------------------------------
+
+def is_windows_locked():
+    """Detect whether Windows is locked using a desktop switching check."""
+
+    user32 = ctypes.windll.User32
+    desktop = user32.OpenDesktopA(b"default", 0, False, 0x0100)
+    
+    # If switching the desktop fails, it's likely that the system is locked
+    return not user32.SwitchDesktop(desktop)
 
 def is_komorebi_running():
     """Check if komorebi.exe is running."""
@@ -434,9 +449,13 @@ class InactivityMonitor(threading.Thread):
 
             if self.enabled.is_set() and not self.isCurrentlyLocked:
 
-                if self.isDesktopActive() or (
+                if self.isDesktopActive() or \
+                (
                     KOMOREBI_INTEGRATION_ENABLED and is_komorebi_workspace_idle()
                     and not has_fullscreen_applications_running()
+                ) and \
+                (
+                    IGNORE_WHEN_WINDOWS_LOCKED and not is_windows_locked()
                 ):
 
                     CURRENT_IDLE += ITERATION_DELAY
