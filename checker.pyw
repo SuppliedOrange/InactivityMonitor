@@ -18,6 +18,7 @@ import pywintypes
 import os
 import subprocess
 import json
+import ctypes
 
 # --------------------- Logging Configuration ---------------------
 
@@ -77,11 +78,14 @@ NON_LETHAL = False
 # -----------------------------------------------------------------
 
 def is_windows_locked():
-    """ Check if the windows OS is locked """
-    for proc in psutil.process_iter():
-        if(proc.name() == "LogonUI.exe"):
-            return True
-    return False
+    """Detect whether Windows is locked using a desktop switching check."""
+
+    user32 = ctypes.windll.User32
+    desktop = user32.OpenDesktopA(b"default", 0, False, 0x0100)
+    
+    # If switching the desktop fails, it's likely that the system is locked
+    return not user32.SwitchDesktop(desktop)
+
 def is_komorebi_running():
     """Check if komorebi.exe is running."""
     for process in psutil.process_iter(['name']):
