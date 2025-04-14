@@ -79,12 +79,9 @@ NON_LETHAL = False
 def is_windows_locked():
     """ Check if the windows OS is locked """
     for proc in psutil.process_iter():
-
         if(proc.name() == "LogonUI.exe"):
             return True
-        else:
-            return False
-
+    return False
 def is_komorebi_running():
     """Check if komorebi.exe is running."""
     for process in psutil.process_iter(['name']):
