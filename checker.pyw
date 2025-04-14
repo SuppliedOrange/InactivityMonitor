@@ -49,12 +49,17 @@ MOUSE_BLOCK = True
 TASK_MANAGER_KILLER = True
 KOMOREBI_INTEGRATION_ENABLED = True
 
+# Options
+
+# If True, the program will not lock the computer if the windows OS is locked
+IGNORE_WHEN_WINDOWS_LOCKED = True
+
 """ Komorebi specific options """
 
 # When there are full-screen applications, do not assume komorebi idling
 IGNORE_FULLSCREEN_APPLICATIONS = True 
 # For the above parameter, this also requires it to be focused
-ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS = True 
+ONLY_IGNORE_FOCUSED_FULLSCREEN_APPLICATIONS = True
 
 # Applications that aren't considered full-screen even if they are
 IGNORED_FULLSCREEN_TITLES = [
@@ -70,6 +75,15 @@ Use NON_LETHAL mode to test that your unlock combination actually works before d
 UNLOCK_COMBINATION = ["o", "p", "p", "o"]
 NON_LETHAL = False
 # -----------------------------------------------------------------
+
+def is_windows_locked():
+    """ Check if the windows OS is locked """
+    for proc in psutil.process_iter():
+
+        if(proc.name() == "LogonUI.exe"):
+            return True
+        else:
+            return False
 
 def is_komorebi_running():
     """Check if komorebi.exe is running."""
@@ -434,9 +448,13 @@ class InactivityMonitor(threading.Thread):
 
             if self.enabled.is_set() and not self.isCurrentlyLocked:
 
-                if self.isDesktopActive() or (
+                if self.isDesktopActive() or \
+                (
                     KOMOREBI_INTEGRATION_ENABLED and is_komorebi_workspace_idle()
                     and not has_fullscreen_applications_running()
+                ) and \
+                (
+                    IGNORE_WHEN_WINDOWS_LOCKED and not is_windows_locked()
                 ):
 
                     CURRENT_IDLE += ITERATION_DELAY
